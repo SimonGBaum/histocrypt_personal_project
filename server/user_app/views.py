@@ -4,10 +4,12 @@ from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import RegisterSerializer
+from .authentication import CookieJWTAuthentication
 
 
 class Register(APIView):
@@ -65,4 +67,19 @@ class LogIn(APIView):
         )
 
         return response
+
+
+class UserView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+class Info(UserView):
+    def get(self, request):
+        return Response({
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+            "username": request.user.username,
+            "email": request.user.email,
+        }, status=status.HTTP_200_OK)
 
