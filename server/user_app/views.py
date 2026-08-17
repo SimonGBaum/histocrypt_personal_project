@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import RegisterSerializer
 from .authentication import CookieJWTAuthentication
@@ -82,4 +84,85 @@ class Info(UserView):
             "username": request.user.username,
             "email": request.user.email,
         }, status=status.HTTP_200_OK)
+
+
+class Refresh(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        raw_refresh = request.COOKIES.get("refresh_token")
+
+        if raw_refresh is None:
+            return Response(
+                {"detail": "Session expired."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        serializer = TokenRefreshSerializer(data={"refresh": raw_refresh})
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError:
+            return Response(
+                {"detail": "Session expired."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        response = Response(
+            {"detail": "Token refreshed."},
+            status=status.HTTP_200_OK
+        )
+
+        response.set_cookie(
+            key="access_token",
+            value=serializer.validated_data["access"],
+            httponly=True,
+            samesite="Lax",
+            secure=not settings.DEBUG,
+            max_age=int(settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()),
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=serializer.validated_data["refresh"],
+            httponly=True,
+            samesite="Lax",
+            secure=not settings.DEBUG,
+            max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+        )
+
+        return response
+
+
+class LogOut(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        raw_refresh = request.COOKIES.get("refresh_token")
+
+        if raw_refresh is not None:
+            try:
+                token = RefreshToken(raw_refresh)
+                token.blacklist()
+            except TokenError:
+                pass
+
+        response = Response(
+            {"detail": "Logged out."},
+            status=status.HTTP_200_OK
+        )
+
+        response.delete_cookie(
+            key="access_token",
+            samesite="Lax",
+        )
+
+        response.delete_cookie(
+            key="refresh_token",
+            samesite="Lax",
+        )
+
+        return response
 
