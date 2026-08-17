@@ -1,3 +1,5 @@
+import hashlib
+import math
 import random
 import string
 
@@ -5,6 +7,12 @@ import string
 ALPHABET = string.ascii_uppercase
 
 NUMERIC = [str(number) for number in range(1, 27)]
+
+DIFFICULTY = {
+    "easy": 0.10,
+    "medium": 0.05,
+    "hard": 0.0,
+}
 
 
 def build_mapping():
@@ -50,3 +58,39 @@ def render(ciphertext, character_type):
 
     return " ".join(pieces)
 
+
+def choose_prefill(plaintext, difficulty):
+    if difficulty not in DIFFICULTY:
+        raise ValueError(f"Unknown difficulty: {difficulty}")
+
+    upper = plaintext.upper()
+    letter_positions = [
+        index for index, character in enumerate(upper)
+        if character in ALPHABET
+    ]
+
+    target = math.ceil(len(upper) * DIFFICULTY[difficulty])
+    count = min(target, len(letter_positions))
+
+    chosen = random.sample(letter_positions, count)
+
+    return {index: upper[index] for index in sorted(chosen)}
+
+
+def solution_hash(plaintext):
+    return hashlib.sha256(plaintext.upper().encode("utf-8")).hexdigest()
+
+
+def build_puzzle(plaintext, difficulty, character_type):
+    mapping = build_mapping()
+    ciphertext = encode(plaintext, mapping)
+
+    return {
+        "ciphertext": ciphertext,
+        "display": render(ciphertext, character_type),
+        "prefill": choose_prefill(plaintext, difficulty),
+        "solution_hash": solution_hash(plaintext),
+        "difficulty": difficulty,
+        "character_type": character_type,
+        "length": len(plaintext),
+    }
