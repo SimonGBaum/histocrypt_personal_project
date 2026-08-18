@@ -59,6 +59,25 @@ def render(ciphertext, character_type):
     return " ".join(pieces)
 
 
+def tokenize(ciphertext, character_type):
+    if character_type not in ("alphabetic", "numeric"):
+        raise ValueError(f"Unknown character type: {character_type}")
+
+    tokens = []
+
+    for index, character in enumerate(ciphertext):
+        if character in ALPHABET:
+            if character_type == "numeric":
+                token = NUMERIC[ALPHABET.index(character)]
+            else:
+                token = character
+            tokens.append({"token": token, "input": True, "index": index})
+        else:
+            tokens.append({"token": character, "input": False, "index": index})
+
+    return tokens
+
+
 def choose_prefill(plaintext, difficulty):
     if difficulty not in DIFFICULTY:
         raise ValueError(f"Unknown difficulty: {difficulty}")
