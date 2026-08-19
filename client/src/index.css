@@ -56,3 +56,30 @@
   gap: 6px;
   margin: 8px 0;
 }
+
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.saved-row {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.saved-author {
+  font-weight: bold;
+  margin: 0 0 2px;
+}
+
+.saved-detail {
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.saved-count {
+  font-size: 13px;
+}

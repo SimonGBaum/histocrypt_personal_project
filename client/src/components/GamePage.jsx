@@ -18,6 +18,8 @@ export default function GamePage() {
   const [blurbChecked, setBlurbChecked] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [savedGameId, setSavedGameId] = useState(null);
+  const [savedGameCleared, setSavedGameCleared] = useState(false);
   const navigate = useNavigate();
 
   const loadPuzzle = async () => {
@@ -37,6 +39,8 @@ export default function GamePage() {
       setBlurb(null);
       setBlurbChecked(false);
       setSaveMessage("");
+      setSavedGameId(null);
+      setSavedGameCleared(false);
     } catch (err) {
       setError("No puzzle is available right now. Please try again.");
     } finally {
@@ -123,15 +127,21 @@ export default function GamePage() {
     setSaveMessage("");
 
     try {
-      await api.post("games/saved/", {
-        ciphertext: puzzle.ciphertext,
-        solution_hash: puzzle.solution_hash,
-        prefill: puzzle.prefill,
-        entries: entries,
-        author: puzzle.author,
-        difficulty: puzzle.difficulty,
-        character_type: puzzle.character_type,
-      });
+      if (savedGameId) {
+        await api.put("games/saved/" + savedGameId + "/", {
+          entries: entries,
+        });
+      } else {
+        await api.post("games/saved/", {
+          ciphertext: puzzle.ciphertext,
+          solution_hash: puzzle.solution_hash,
+          prefill: puzzle.prefill,
+          entries: entries,
+          author: puzzle.author,
+          difficulty: puzzle.difficulty,
+          character_type: puzzle.character_type,
+        });
+      }
       setSaveMessage("Game saved.");
     } catch (err) {
       setSaveMessage(err.response?.data?.detail || "Could not save the game.");
@@ -170,6 +180,8 @@ export default function GamePage() {
       setFavorited(data.favorited);
       setBlurb(data.blurb);
       setBlurbChecked(data.blurbChecked);
+      setSavedGameId(data.savedGameId || null);
+      setSavedGameCleared(data.savedGameCleared || false);
       setLoading(false);
     } catch (err) {
       sessionStorage.removeItem("histocrypt_game");
@@ -218,6 +230,23 @@ export default function GamePage() {
   });
 
     useEffect(() => {
+    const clearSavedGame = async () => {
+      setSavedGameCleared(true);
+
+      try {
+        await api.delete("games/saved/" + savedGameId + "/");
+        setSavedGameId(null);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (puzzle && savedGameId && !savedGameCleared && isSolved()) {
+      clearSavedGame();
+    }
+  });
+
+    useEffect(() => {
     if (!puzzle) {
       return;
     }
@@ -229,6 +258,8 @@ export default function GamePage() {
       favorited: favorited,
       blurb: blurb,
       blurbChecked: blurbChecked,
+      savedGameId: savedGameId,
+      savedGameCleared: savedGameCleared,
     };
 
     sessionStorage.setItem("histocrypt_game", JSON.stringify(saved));
