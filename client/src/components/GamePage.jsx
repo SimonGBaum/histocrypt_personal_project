@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { sha256 } from "js-sha256";
+import axios from "axios";
 import api from "../utilities";
 
 export default function GamePage() {
@@ -13,6 +14,8 @@ export default function GamePage() {
   const [recorded, setRecorded] = useState(false);
   const [favorited, setFavorited] = useState(false);
   const [favoriteMessage, setFavoriteMessage] = useState("");
+  const [blurb, setBlurb] = useState(null);
+  const [blurbChecked, setBlurbChecked] = useState(false);
 
   const loadPuzzle = async () => {
     setLoading(true);
@@ -27,6 +30,8 @@ export default function GamePage() {
       setRecorded(false);
       setFavorited(false);
       setFavoriteMessage("");
+      setBlurb(null);
+      setBlurbChecked(false);
     } catch (err) {
       setError("No puzzle is available right now. Please try again.");
     } finally {
@@ -109,18 +114,19 @@ export default function GamePage() {
     }
   };
 
-  useEffect(() => {
+    useEffect(() => {
     loadPuzzle();
   }, []);
 
     useEffect(() => {
     const recordSolve = async () => {
+      setRecorded(true);
+
       try {
         await api.post("achievements/", {
           difficulty: puzzle.difficulty,
           character_type: puzzle.character_type,
         });
-        setRecorded(true);
       } catch (err) {
         console.log(err);
       }
@@ -128,6 +134,27 @@ export default function GamePage() {
 
     if (puzzle && !recorded && isSolved()) {
       recordSolve();
+    }
+  });
+
+    useEffect(() => {
+    const loadBlurb = async () => {
+      setBlurbChecked(true);
+
+      const name = encodeURIComponent(puzzle.author.split(" ").join("_"));
+
+      try {
+        const response = await axios.get(
+          "https://en.wikipedia.org/api/rest_v1/page/summary/" + name
+        );
+        setBlurb(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (puzzle && !blurbChecked && isSolved()) {
+      loadBlurb();
     }
   });
 
@@ -204,6 +231,17 @@ export default function GamePage() {
             <div className="solved-quote">
               <p>&ldquo;{assemblePlaintext()}&rdquo;</p>
               <p>&mdash; By {puzzle.author}</p>
+              {blurb && (
+                <div className="blurb">
+                  <p>{blurb.extract}</p>
+                  <a href={blurb.content_urls.desktop.page}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Read more on Wikipedia
+                  </a>
+                </div>
+              )}
               <button
                 className="btn btn-primary"
                 onClick={handleFavorite}
