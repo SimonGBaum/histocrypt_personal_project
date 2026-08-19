@@ -8,6 +8,7 @@ export default function GamePage() {
   const [error, setError] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
   const [characterType, setCharacterType] = useState("alphabetic");
+  const [entries, setEntries] = useState({});
 
   const loadPuzzle = async () => {
     setLoading(true);
@@ -18,6 +19,7 @@ export default function GamePage() {
         "games/new/?difficulty=" + difficulty + "&character_type=" + characterType
       );
       setPuzzle(response.data);
+      setEntries({});
     } catch (err) {
       setError("No puzzle is available right now. Please try again.");
     } finally {
@@ -41,6 +43,26 @@ export default function GamePage() {
     words.push(current);
 
     return words;
+  };
+
+  const fillMatching = (typedToken, rawValue) => {
+    const typed = rawValue.slice(-1).toUpperCase();
+
+    if (typed !== "" && !"ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(typed)) {
+      return;
+    }
+
+    const updates = {};
+
+    puzzle.tokens.forEach((token) => {
+      if (token.input && token.token === typedToken.token) {
+        if (!puzzle.prefill[String(token.index)]) {
+          updates[String(token.index)] = typed;
+        }
+      }
+    });
+
+    setEntries({ ...entries, ...updates });
   };
 
   useEffect(() => {
@@ -102,9 +124,8 @@ export default function GamePage() {
                         <input
                           className="letter-box"
                           type="text"
-                          maxLength="1"
-                          value=""
-                          readOnly
+                          value={entries[String(token.index)] || ""}
+                          onChange={(event) => fillMatching(token, event.target.value)}
                         />
                       )}
                     </div>
