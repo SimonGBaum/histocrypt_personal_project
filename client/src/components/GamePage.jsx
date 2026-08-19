@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { sha256 } from "js-sha256";
 import api from "../utilities";
 
 export default function GamePage() {
@@ -9,6 +10,9 @@ export default function GamePage() {
   const [difficulty, setDifficulty] = useState("medium");
   const [characterType, setCharacterType] = useState("alphabetic");
   const [entries, setEntries] = useState({});
+  const [recorded, setRecorded] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+  const [favoriteMessage, setFavoriteMessage] = useState("");
 
   const loadPuzzle = async () => {
     setLoading(true);
@@ -20,6 +24,9 @@ export default function GamePage() {
       );
       setPuzzle(response.data);
       setEntries({});
+      setRecorded(false);
+      setFavorited(false);
+      setFavoriteMessage("");
     } catch (err) {
       setError("No puzzle is available right now. Please try again.");
     } finally {
@@ -65,9 +72,64 @@ export default function GamePage() {
     setEntries({ ...entries, ...updates });
   };
 
+    const assemblePlaintext = () => {
+    const characters = puzzle.tokens.map((token) => {
+      if (!token.input) {
+        return token.token;
+      }
+
+      const prefilled = puzzle.prefill[String(token.index)];
+
+      if (prefilled) {
+        return prefilled;
+      }
+
+      return entries[String(token.index)] || "_";
+    });
+
+    return characters.join("");
+  };
+
+  const isSolved = () => {
+    return sha256(assemblePlaintext()) === puzzle.solution_hash;
+  };
+
+    const handleFavorite = async () => {
+    setFavoriteMessage("");
+
+    try {
+      await api.post("favorites/", {
+        quote_text: assemblePlaintext(),
+        author: puzzle.author,
+      });
+      setFavorited(true);
+      setFavoriteMessage("Added to favorites.");
+    } catch (err) {
+      setFavoriteMessage(err.response?.data?.detail || "Could not add to favorites.");
+    }
+  };
+
   useEffect(() => {
     loadPuzzle();
   }, []);
+
+    useEffect(() => {
+    const recordSolve = async () => {
+      try {
+        await api.post("achievements/", {
+          difficulty: puzzle.difficulty,
+          character_type: puzzle.character_type,
+        });
+        setRecorded(true);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (puzzle && !recorded && isSolved()) {
+      recordSolve();
+    }
+  });
 
   return (
     <>
@@ -109,6 +171,8 @@ export default function GamePage() {
 
       {puzzle && !loading && !error && (
         <>
+          {isSolved() && <h3 className="text-success">Correct!</h3>}
+
           <div className="board">
             {groupIntoWords(puzzle.tokens).map((word, wordIndex) => (
               <div className="word" key={wordIndex}>
@@ -126,6 +190,7 @@ export default function GamePage() {
                           type="text"
                           value={entries[String(token.index)] || ""}
                           onChange={(event) => fillMatching(token, event.target.value)}
+                          readOnly={isSolved()}
                         />
                       )}
                     </div>
@@ -135,7 +200,21 @@ export default function GamePage() {
               </div>
             ))}
           </div>
+          {isSolved() && (
+            <div className="solved-quote">
+              <p>&ldquo;{assemblePlaintext()}&rdquo;</p>
+              <p>&mdash; By {puzzle.author}</p>
+              <button
+                className="btn btn-primary"
+                onClick={handleFavorite}
+                disabled={favorited}
+              >
+                Add to Favorites
+              </button>
 
+              {favoriteMessage && <p>{favoriteMessage}</p>}
+            </div>
+          )}
           <p>author: {puzzle.author}</p>
         </>
       )}
