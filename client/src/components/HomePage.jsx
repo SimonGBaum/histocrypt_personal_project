@@ -7,6 +7,7 @@ export default function HomePage() {
   const handleLogOut = async () => {
     try {
       await api.post("users/logout/");
+      sessionStorage.removeItem("histocrypt_game");
       setUser(null);
     } catch (err) {
       console.log(err);

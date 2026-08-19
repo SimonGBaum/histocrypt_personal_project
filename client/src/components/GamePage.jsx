@@ -18,6 +18,7 @@ export default function GamePage() {
   const [blurbChecked, setBlurbChecked] = useState(false);
 
   const loadPuzzle = async () => {
+    sessionStorage.removeItem("histocrypt_game");
     setLoading(true);
     setError("");
 
@@ -114,8 +115,27 @@ export default function GamePage() {
     }
   };
 
-    useEffect(() => {
-    loadPuzzle();
+  useEffect(() => {
+    const saved = sessionStorage.getItem("histocrypt_game");
+
+    if (!saved) {
+      loadPuzzle();
+      return;
+    }
+
+    try {
+      const data = JSON.parse(saved);
+      setPuzzle(data.puzzle);
+      setEntries(data.entries);
+      setRecorded(data.recorded);
+      setFavorited(data.favorited);
+      setBlurb(data.blurb);
+      setBlurbChecked(data.blurbChecked);
+      setLoading(false);
+    } catch (err) {
+      sessionStorage.removeItem("histocrypt_game");
+      loadPuzzle();
+    }
   }, []);
 
     useEffect(() => {
@@ -156,6 +176,23 @@ export default function GamePage() {
     if (puzzle && !blurbChecked && isSolved()) {
       loadBlurb();
     }
+  });
+
+    useEffect(() => {
+    if (!puzzle) {
+      return;
+    }
+
+    const saved = {
+      puzzle: puzzle,
+      entries: entries,
+      recorded: recorded,
+      favorited: favorited,
+      blurb: blurb,
+      blurbChecked: blurbChecked,
+    };
+
+    sessionStorage.setItem("histocrypt_game", JSON.stringify(saved));
   });
 
   return (
