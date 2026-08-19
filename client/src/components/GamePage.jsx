@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { sha256 } from "js-sha256";
 import axios from "axios";
 import api from "../utilities";
@@ -16,6 +16,9 @@ export default function GamePage() {
   const [favoriteMessage, setFavoriteMessage] = useState("");
   const [blurb, setBlurb] = useState(null);
   const [blurbChecked, setBlurbChecked] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  const navigate = useNavigate();
 
   const loadPuzzle = async () => {
     sessionStorage.removeItem("histocrypt_game");
@@ -33,6 +36,7 @@ export default function GamePage() {
       setFavoriteMessage("");
       setBlurb(null);
       setBlurbChecked(false);
+      setSaveMessage("");
     } catch (err) {
       setError("No puzzle is available right now. Please try again.");
     } finally {
@@ -113,6 +117,41 @@ export default function GamePage() {
     } catch (err) {
       setFavoriteMessage(err.response?.data?.detail || "Could not add to favorites.");
     }
+  };
+
+    const handleSave = async () => {
+    setSaveMessage("");
+
+    try {
+      await api.post("games/saved/", {
+        ciphertext: puzzle.ciphertext,
+        solution_hash: puzzle.solution_hash,
+        prefill: puzzle.prefill,
+        entries: entries,
+        author: puzzle.author,
+        difficulty: puzzle.difficulty,
+        character_type: puzzle.character_type,
+      });
+      setSaveMessage("Game saved.");
+    } catch (err) {
+      setSaveMessage(err.response?.data?.detail || "Could not save the game.");
+    }
+  };
+
+    const handleHome = () => {
+    const hasProgress = Object.keys(entries).length > 0;
+
+    if (hasProgress && !isSolved()) {
+      const leave = window.confirm(
+        "You have unsaved progress. Leave without saving?"
+      );
+
+      if (!leave) {
+        return;
+      }
+    }
+
+    navigate("/home");
   };
 
   useEffect(() => {
@@ -222,6 +261,27 @@ export default function GamePage() {
         New Game
       </button>
 
+      <button
+        className="btn btn-secondary"
+        onClick={() => setShowOptions(!showOptions)}
+      >
+        Game Options
+      </button>
+
+      {showOptions && (
+        <div className="game-options">
+          {puzzle && !isSolved() && (
+            <button className="btn btn-primary" onClick={handleSave}>
+              Save
+            </button>
+          )}
+          {saveMessage && <p>{saveMessage}</p>}
+          <Link className="btn btn-primary" to="/game/saved">
+            Saved Games
+          </Link>
+        </div>
+      )}
+
       {loading && <p>Loading...</p>}
 
       {error && (
@@ -293,10 +353,9 @@ export default function GamePage() {
           <p>author: {puzzle.author}</p>
         </>
       )}
-
-      <Link className="btn btn-primary" to="/home">
+      <button className="btn btn-primary" onClick={handleHome}>
         Home
-      </Link>
+      </button>
     </>
   );
 }
