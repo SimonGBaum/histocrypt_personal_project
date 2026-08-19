@@ -56,7 +56,7 @@ class PuzzleEndpointTest(TestCase):
         data = response.json()
         self.assertEqual(
             sorted(data.keys()),
-            ["author", "character_type", "difficulty", "length", "prefill", "solution_hash", "tokens"],
+            ["author", "character_type", "ciphertext", "difficulty", "length", "prefill", "solution_hash", "tokens"],
         )
         self.assertEqual(len(data["tokens"]), data["length"])
         self.assertEqual(data["author"], "Test Author")

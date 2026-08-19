@@ -32,6 +32,7 @@ class NewPuzzle(APIView):
 
         return Response({
             "tokens": tokenize(puzzle["ciphertext"], character_type),
+            "ciphertext": puzzle["ciphertext"],
             "prefill": puzzle["prefill"],
             "solution_hash": puzzle["solution_hash"],
             "author": quote["author"],
