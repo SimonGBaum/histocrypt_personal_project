@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import api from "../utilities";
 
 export default function HomePage() {
@@ -16,7 +16,12 @@ export default function HomePage() {
   return (
     <>
       <p>{user.username}</p>
-      <h2>Home Page</h2>
+      <Link className="btn btn-primary" to="/game">
+        Game
+      </Link>
+      <Link className="btn btn-primary" to="/user">
+        User Area
+      </Link>
       <button className="btn btn-secondary" onClick={handleLogOut}>
         Log Out
       </button>
