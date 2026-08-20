@@ -1,3 +1,31 @@
+body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: system-ui, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+button,
+a.btn {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+}
+
 .board {
   display: flex;
   flex-wrap: wrap;
@@ -82,4 +110,127 @@
 
 .saved-count {
   font-size: 13px;
+}
+
+form {
+  max-width: 400px;
+  margin-bottom: 12px;
+}
+
+form input {
+  margin-bottom: 8px;
+}
+
+.home-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 400px;
+}
+
+.home-nav .btn {
+  text-align: center;
+}
+
+.error-text {
+  max-width: 500px;
+}
+
+.game-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.game-controls .form-select {
+  flex: 1;
+}
+
+.game-options-toggle {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+}
+
+.solved-quote {
+  max-width: 600px;
+}
+
+@media (max-width: 600px) {
+  .board {
+    gap: 12px;
+  }
+
+  .word {
+    gap: 3px;
+  }
+
+  .letter-box,
+  .prefilled {
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+  }
+
+  .slot {
+    height: 26px;
+  }
+
+  .cipher {
+    font-size: 14px;
+  }
+}
+
+.saved-row,
+.favorite-row {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  max-width: 600px;
+}
+
+.favorite-quote {
+  margin: 0 0 4px;
+}
+
+.favorite-author {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.favorite-note {
+  font-size: 14px;
+  font-style: italic;
+  margin: 0 0 8px;
+}
+
+.favorite-comment {
+  margin-top: 8px;
+}
+
+.favorite-comment textarea {
+  margin-bottom: 8px;
+}
+
+.favorites-panel,
+.achievements-panel {
+  margin: 8px 0 16px;
+}
+
+.achievement-box {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  max-width: 400px;
+}
+
+.achievement-box h3 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+
+.achievement-box p {
+  margin: 0 0 4px;
 }

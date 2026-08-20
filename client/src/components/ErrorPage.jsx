@@ -5,7 +5,7 @@ export default function ErrorPage() {
     <>
       <h1>HistoCrypt</h1>
       <h2 className="text-danger">404 Page Not Found</h2>
-      <p className="text-danger">
+      <p className="text-danger error-text">
         Oops! We are sorry for the inconvenience that this error has caused.
         Please be patient and we will get you back to solving puzzles in no time.
       </p>

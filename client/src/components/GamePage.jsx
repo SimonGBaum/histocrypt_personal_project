@@ -267,31 +267,8 @@ export default function GamePage() {
 
   return (
     <>
-      <select
-        className="form-select"
-        value={difficulty}
-        onChange={(event) => setDifficulty(event.target.value)}
-      >
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-
-      <select
-        className="form-select"
-        value={characterType}
-        onChange={(event) => setCharacterType(event.target.value)}
-      >
-        <option value="alphabetic">Alphabetic</option>
-        <option value="numeric">Numeric</option>
-      </select>
-
-      <button className="btn btn-primary" onClick={loadPuzzle}>
-        New Game
-      </button>
-
       <button
-        className="btn btn-secondary"
+        className="btn btn-secondary game-options-toggle"
         onClick={() => setShowOptions(!showOptions)}
       >
         Game Options
@@ -310,6 +287,31 @@ export default function GamePage() {
           </Link>
         </div>
       )}
+
+      <div className="game-controls">
+        <select
+          className="form-select"
+          value={difficulty}
+          onChange={(event) => setDifficulty(event.target.value)}
+        >
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <select
+          className="form-select"
+          value={characterType}
+          onChange={(event) => setCharacterType(event.target.value)}
+        >
+          <option value="alphabetic">Alphabetic</option>
+          <option value="numeric">Numeric</option>
+        </select>
+      </div>
+
+      <button className="btn btn-primary" onClick={loadPuzzle}>
+        New Game
+      </button>
 
       {loading && <p>Loading...</p>}
 

@@ -17,6 +17,7 @@ export default function HomePage() {
   return (
     <>
       <p>{user.username}</p>
+      <div className="home-nav">
       <Link className="btn btn-primary" to="/game">
         Game
       </Link>
@@ -26,6 +27,7 @@ export default function HomePage() {
       <button className="btn btn-secondary" onClick={handleLogOut}>
         Log Out
       </button>
+      </div>
     </>
   );
 }
