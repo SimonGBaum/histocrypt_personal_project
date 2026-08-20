@@ -267,8 +267,6 @@ export default function GamePage() {
 
   return (
     <>
-      <h2>Game Page</h2>
-
       <select
         className="form-select"
         value={difficulty}
@@ -381,7 +379,6 @@ export default function GamePage() {
               {favoriteMessage && <p>{favoriteMessage}</p>}
             </div>
           )}
-          <p>author: {puzzle.author}</p>
         </>
       )}
       <button className="btn btn-primary" onClick={handleHome}>

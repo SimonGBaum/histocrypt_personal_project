@@ -26,6 +26,10 @@ export default function SavedGamesPage() {
     loadGames();
   }, []);
 
+  const capitalize = (word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  };
+
   const readableDate = (stamp) => {
     return new Date(stamp).toLocaleString();
   };
@@ -87,7 +91,8 @@ export default function SavedGamesPage() {
               <div className="saved-row" key={game.id}>
                 <p className="saved-author">{game.author}</p>
                 <p className="saved-detail">
-                  {game.difficulty} · {game.character_type} · {game.length}{" "}
+                  {capitalize(game.difficulty)} · {capitalize(game.character_type)} ·{" "}
+                  {game.length}{" "}
                   characters · saved {readableDate(game.updated_at)}
                 </p>
                 <button

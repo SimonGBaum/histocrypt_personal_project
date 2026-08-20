@@ -10,7 +10,9 @@ export default function ErrorPage() {
         Please be patient and we will get you back to solving puzzles in no time.
       </p>
       <h3 className="text-danger">Thank you</h3>
-      <Link to="/">Home</Link>
+      <Link className="btn btn-primary" to="/">
+        Home
+      </Link>
     </>
   );
 }

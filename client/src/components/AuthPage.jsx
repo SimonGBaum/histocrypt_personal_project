@@ -85,6 +85,7 @@ export default function AuthPage() {
             placeholder="Enter Username"
             value={form.username}
             onChange={handleChange}
+            required
           />
           <input
             className="form-control"
@@ -93,6 +94,7 @@ export default function AuthPage() {
             placeholder="Enter password"
             value={form.password}
             onChange={handleChange}
+            required
           />
           <button className="btn btn-primary" type="submit">Log In</button>
         </form>
@@ -105,6 +107,7 @@ export default function AuthPage() {
             placeholder="Enter first name"
             value={form.first_name}
             onChange={handleChange}
+            required
           />
           <input
             className="form-control"
@@ -113,6 +116,7 @@ export default function AuthPage() {
             placeholder="Enter last name"
             value={form.last_name}
             onChange={handleChange}
+            required
           />
           <input
             className="form-control"
@@ -121,6 +125,7 @@ export default function AuthPage() {
             placeholder="Enter Username"
             value={form.username}
             onChange={handleChange}
+            required
           />
           <input
             className="form-control"
@@ -129,6 +134,7 @@ export default function AuthPage() {
             placeholder="Enter email"
             value={form.email}
             onChange={handleChange}
+            required
           />
           <input
             className="form-control"
@@ -137,6 +143,7 @@ export default function AuthPage() {
             placeholder="Enter password"
             value={form.password}
             onChange={handleChange}
+            required
           />
           <button className="btn btn-primary" type="submit">Sign Up</button>
         </form>
