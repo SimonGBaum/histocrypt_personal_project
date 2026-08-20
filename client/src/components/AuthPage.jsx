@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import api from "../utilities";
 
 export default function AuthPage() {
+  const { setUser } = useOutletContext();
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({
     first_name: "",
@@ -46,6 +47,8 @@ export default function AuthPage() {
         username: form.username,
         password: form.password,
       });
+      const info = await api.get("users/info/");
+      setUser(info.data);
       navigate("/home");
     } catch (err) {
       setError(readError(err));
