@@ -13,6 +13,9 @@ export default function UserPage() {
   const [noteMessage, setNoteMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [searching, setSearching] = useState(false);
+  const [achievements, setAchievements] = useState(null);
+  const [achievementsLoading, setAchievementsLoading] = useState(true);
+  const [achievementsError, setAchievementsError] = useState("");
 
   const loadFavorites = async (term) => {
     setLoading(true);
@@ -63,6 +66,20 @@ export default function UserPage() {
     }
   };
 
+  const loadAchievements = async () => {
+    setAchievementsLoading(true);
+    setAchievementsError("");
+
+    try {
+      const response = await api.get("achievements/");
+      setAchievements(response.data);
+    } catch (err) {
+      setAchievementsError("Could not load your achievements.");
+    } finally {
+      setAchievementsLoading(false);
+    }
+  };
+
   const handleDelete = async (id) => {
     const remove = window.confirm("Delete this favorite?");
 
@@ -80,6 +97,7 @@ export default function UserPage() {
 
   useEffect(() => {
     loadFavorites(searchTerm);
+    loadAchievements();
   }, []);
 
   return (
@@ -182,7 +200,33 @@ export default function UserPage() {
 
       {showAchievements && (
         <div className="achievements-panel">
-          <p>Achievements panel</p>
+          {achievementsLoading && <p>Loading...</p>}
+
+          {achievementsError && (
+            <p className="text-danger">{achievementsError}</p>
+          )}
+
+          {!achievementsLoading && !achievementsError && achievements && (
+            <>
+              <div className="achievement-box">
+                <h3>Puzzles Solved</h3>
+                <p>{achievements.total}</p>
+              </div>
+
+              <div className="achievement-box">
+                <h3>Puzzles Solved by Difficulty</h3>
+                <p>Easy: {achievements.by_difficulty.easy}</p>
+                <p>Medium: {achievements.by_difficulty.medium}</p>
+                <p>Hard: {achievements.by_difficulty.hard}</p>
+              </div>
+
+              <div className="achievement-box">
+                <h3>Puzzles Solved by Type</h3>
+                <p>Alphabetic: {achievements.by_type.alphabetic}</p>
+                <p>Numeric: {achievements.by_type.numeric}</p>
+              </div>
+            </>
+          )}
         </div>
       )}
 
