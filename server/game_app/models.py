@@ -6,7 +6,6 @@ class SavedGame(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved_games")
     ciphertext = models.TextField()
     plaintext = models.TextField(blank=True, default="")
-    solution_hash = models.CharField(max_length=64)
     prefill = models.JSONField()
     entries = models.JSONField(default=dict)
     author = models.CharField(max_length=255)

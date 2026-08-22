@@ -12,9 +12,6 @@ class Favorite(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(fields=["user", "quote_text"], name="unique_user_quote")
-        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.author}"

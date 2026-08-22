@@ -1,6 +1,5 @@
 import os
 import random
-
 import requests
 
 
@@ -19,7 +18,6 @@ class QuoteUnavailable(Exception):
 def get_random_quote():
     api_key = os.environ.get("ZENQUOTES_API_KEY")
     url = f"{ZENQUOTES_URL}{api_key}"
-
     try:
         response = requests.get(url, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
@@ -28,17 +26,13 @@ def get_random_quote():
         raise QuoteUnavailable("Could not reach the quote service.")
     except ValueError:
         raise QuoteUnavailable("The quote service returned an unreadable response.")
-
     candidates = [
         item for item in batch
         if MIN_LENGTH <= int(item["c"]) <= MAX_LENGTH
     ]
-
     if not candidates:
         raise QuoteUnavailable("No quote of a usable length was available.")
-
     chosen = random.choice(candidates)
-
     return {
         "quote": chosen["q"],
         "author": chosen["a"],

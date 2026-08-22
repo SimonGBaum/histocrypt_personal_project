@@ -54,7 +54,7 @@ export default function SavedGamesPage() {
       puzzle: {
         tokens: game.tokens,
         prefill: game.prefill,
-        solution_hash: game.solution_hash,
+        plaintext: game.plaintext,
         author: game.author,
         difficulty: game.difficulty,
         character_type: game.character_type,

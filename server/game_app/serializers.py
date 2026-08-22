@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from .models import SavedGame
 from .cipher import tokenize
 
@@ -15,7 +14,6 @@ class SavedGameSerializer(serializers.ModelSerializer):
             "tokens",
             "ciphertext",
             "plaintext",
-            "solution_hash",
             "prefill",
             "entries",
             "author",
@@ -28,7 +26,7 @@ class SavedGameSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
         extra_kwargs = {
             "ciphertext": {"write_only": True},
-            "plaintext": {"write_only": True},
+            "plaintext": {"required": True, "allow_blank": False},
         }
 
     def get_tokens(self, obj):

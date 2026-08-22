@@ -1,70 +1,45 @@
-import hashlib
-import math
 import random
 import string
 
 
 ALPHABET = string.ascii_uppercase
 
-NUMERIC = [str(number) for number in range(1, 27)]
+NUMERIC = []
+
+for number in range(1, 27):
+    NUMERIC.append(str(number))
 
 DIFFICULTY = {
-    "easy": 0.10,
-    "medium": 0.05,
-    "hard": 0.0,
+    "easy": 10,
+    "medium": 5,
+    "hard": 0,
 }
+
+CHARACTER_TYPES = ("alphabetic", "numeric")
 
 
 def build_mapping():
-    letters = list(ALPHABET)
-    shuffled = list(ALPHABET)
-
-    while True:
-        random.shuffle(shuffled)
-        if all(a != b for a, b in zip(letters, shuffled)):
-            break
-
-    return dict(zip(letters, shuffled))
+    shift = random.randint(1, 25)
+    mapping = {}
+    for position in range(26):
+        mapping[ALPHABET[position]] = ALPHABET[(position + shift) % 26]
+    return mapping
 
 
 def encode(plaintext, mapping):
     result = []
-
     for character in plaintext.upper():
         if character in mapping:
             result.append(mapping[character])
         else:
             result.append(character)
-
     return "".join(result)
 
 
-def render(ciphertext, character_type):
-    if character_type == "alphabetic":
-        return ciphertext
-
-    if character_type == "numeric":
-        tokens = NUMERIC
-    else:
-        raise ValueError(f"Unknown character type: {character_type}")
-
-    pieces = []
-
-    for character in ciphertext:
-        if character in ALPHABET:
-            pieces.append(tokens[ALPHABET.index(character)])
-        else:
-            pieces.append(character)
-
-    return " ".join(pieces)
-
-
 def tokenize(ciphertext, character_type):
-    if character_type not in ("alphabetic", "numeric"):
+    if character_type not in CHARACTER_TYPES:
         raise ValueError(f"Unknown character type: {character_type}")
-
     tokens = []
-
     for index, character in enumerate(ciphertext):
         if character in ALPHABET:
             if character_type == "numeric":
@@ -74,41 +49,37 @@ def tokenize(ciphertext, character_type):
             tokens.append({"token": token, "input": True, "index": index})
         else:
             tokens.append({"token": character, "input": False, "index": index})
-
     return tokens
 
 
 def choose_prefill(plaintext, difficulty):
     if difficulty not in DIFFICULTY:
         raise ValueError(f"Unknown difficulty: {difficulty}")
-
     upper = plaintext.upper()
-    letter_positions = [
-        index for index, character in enumerate(upper)
-        if character in ALPHABET
-    ]
-
-    target = math.ceil(len(upper) * DIFFICULTY[difficulty])
+    letter_positions = []
+    for index in range(len(upper)):
+        if upper[index] in ALPHABET:
+            letter_positions.append(index)
+    percent = DIFFICULTY[difficulty]
+    target = (len(upper) * percent + 99) // 100
     count = min(target, len(letter_positions))
-
     chosen = random.sample(letter_positions, count)
-
-    return {index: upper[index] for index in sorted(chosen)}
-
-
-def solution_hash(plaintext):
-    return hashlib.sha256(plaintext.upper().encode("utf-8")).hexdigest()
+    prefill = {}
+    for index in sorted(chosen):
+        prefill[index] = upper[index]
+    return prefill
 
 
 def build_puzzle(plaintext, difficulty, character_type):
+    if character_type not in CHARACTER_TYPES:
+        raise ValueError(f"Unknown character type: {character_type}")
+    plaintext = plaintext.upper()
     mapping = build_mapping()
     ciphertext = encode(plaintext, mapping)
-
     return {
         "ciphertext": ciphertext,
-        "display": render(ciphertext, character_type),
         "prefill": choose_prefill(plaintext, difficulty),
-        "solution_hash": solution_hash(plaintext),
+        "plaintext": plaintext,
         "difficulty": difficulty,
         "character_type": character_type,
         "length": len(plaintext),

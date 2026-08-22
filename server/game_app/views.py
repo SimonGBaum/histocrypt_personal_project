@@ -2,7 +2,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-
 from .services import get_random_quote, QuoteUnavailable
 from .cipher import build_puzzle, tokenize
 from .serializers import SavedGameSerializer
@@ -13,7 +12,6 @@ class NewPuzzle(APIView):
     def get(self, request):
         difficulty = request.query_params.get("difficulty", "medium")
         character_type = request.query_params.get("character_type", "alphabetic")
-
         try:
             quote = get_random_quote()
         except QuoteUnavailable:
@@ -21,7 +19,6 @@ class NewPuzzle(APIView):
                 {"detail": "No puzzle is available right now. Please try again."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
-
         try:
             puzzle = build_puzzle(quote["quote"], difficulty, character_type)
         except ValueError:
@@ -29,12 +26,11 @@ class NewPuzzle(APIView):
                 {"detail": "Invalid difficulty or character type."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         return Response({
             "tokens": tokenize(puzzle["ciphertext"], character_type),
             "ciphertext": puzzle["ciphertext"],
             "prefill": puzzle["prefill"],
-            "solution_hash": puzzle["solution_hash"],
+            "plaintext": puzzle["plaintext"],
             "author": quote["author"],
             "difficulty": difficulty,
             "character_type": character_type,
@@ -55,7 +51,6 @@ class SavedGameList(APIView):
                 {"detail": "You have 3 saved games. Delete one to save another."},
                 status=status.HTTP_409_CONFLICT
             )
-
         serializer = SavedGameSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)

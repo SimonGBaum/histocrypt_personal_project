@@ -17,7 +17,6 @@ class AchievementsTest(TestCase):
         self.assertEqual(empty["total"], 0)
         self.assertEqual(empty["by_difficulty"], {"easy": 0, "medium": 0, "hard": 0})
         self.assertEqual(empty["by_type"], {"alphabetic": 0, "numeric": 0})
-
         solves = [
             ("easy", "alphabetic"),
             ("easy", "alphabetic"),
@@ -32,7 +31,6 @@ class AchievementsTest(TestCase):
                 content_type="application/json",
             )
             self.assertEqual(recorded.status_code, 201)
-
         data = self.client.get("/api/v1/achievements/").json()
         self.assertEqual(data["total"], 5)
         self.assertEqual(data["by_difficulty"], {"easy": 3, "medium": 1, "hard": 1})

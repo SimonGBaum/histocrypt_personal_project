@@ -1,9 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Count
-
-from .models import DIFFICULTY_CHOICES, CHARACTER_TYPE_CHOICES
 from .serializers import SolveRecordSerializer
 
 
@@ -11,20 +8,15 @@ class Achievements(APIView):
 
     def get(self, request):
         records = request.user.solve_records.all()
-
-        by_difficulty = {value: 0 for value, label in DIFFICULTY_CHOICES}
-        by_type = {value: 0 for value, label in CHARACTER_TYPE_CHOICES}
-
-        for row in records.values("difficulty").annotate(count=Count("id")):
-            if row["difficulty"] in by_difficulty:
-                by_difficulty[row["difficulty"]] = row["count"]
-
-        for row in records.values("character_type").annotate(count=Count("id")):
-            if row["character_type"] in by_type:
-                by_type[row["character_type"]] = row["count"]
-
+        by_difficulty = {"easy": 0, "medium": 0, "hard": 0}
+        by_type = {"alphabetic": 0, "numeric": 0}
+        for record in records:
+            if record.difficulty in by_difficulty:
+                by_difficulty[record.difficulty] += 1
+            if record.character_type in by_type:
+                by_type[record.character_type] += 1
         return Response({
-            "total": records.count(),
+            "total": len(records),
             "by_difficulty": by_difficulty,
             "by_type": by_type,
         }, status=status.HTTP_200_OK)

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { sha256 } from "js-sha256";
 import axios from "axios";
 import api from "../utilities";
 
@@ -105,7 +104,7 @@ export default function GamePage() {
   };
 
   const isSolved = () => {
-    return sha256(assemblePlaintext()) === puzzle.solution_hash;
+    return assemblePlaintext() === puzzle.plaintext;
   };
 
     const handleFavorite = async () => {
@@ -134,7 +133,7 @@ export default function GamePage() {
       } else {
         await api.post("games/saved/", {
           ciphertext: puzzle.ciphertext,
-          solution_hash: puzzle.solution_hash,
+          plaintext: puzzle.plaintext,
           prefill: puzzle.prefill,
           entries: entries,
           author: puzzle.author,

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.password_validation import validate_password as run_password_validators
 from rest_framework import serializers
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
     
     def validate_password(self, value):
-        validate_password(value)
+        run_password_validators(value)
         return value
     
     def create(self, validated_data):
